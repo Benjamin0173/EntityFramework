@@ -125,22 +125,24 @@ namespace TP1.Controllers
 
         // DELETE: /location/1
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try{
-                var location = _context.Locations.FirstOrDefault(l => l.Id == id);
-                if (location == null)
-                {
-                    return NotFound();
-                }
+            var location = await _context.Locations.FindAsync(id);
+            if (location == null)
+            {
+                return NotFound();
+            }
 
-                _context.Remove(location);
-                return NoContent();
+            _context.Locations.Remove(location);
+            await _context.SaveChangesAsync();
+
+            return NoContent(); // Return a valid IActionResult
             } catch (Exception ex)
             {
-                _logger.LogError(ex, "Erreur lors de la suppresion de la localisation.");
+                _logger.LogError(ex, "Erreur lors de la suppression de la localisation.");
                 throw;
             }
         }
-    }
+    }   
 }

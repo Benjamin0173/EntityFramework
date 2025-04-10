@@ -27,26 +27,27 @@ namespace TP1.Controllers
 
         // GET: /participant
         [HttpGet]
-        public async Task<IEnumerable<ParticipantDTO>> Get()
+        public async Task<IActionResult> Get()
         {
             try {
-                return await _context.Participants
+            var participants = await _context.Participants
                 .Select(p => new ParticipantDTO
                 {
-                    Id = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Email = p.Email,
-                    Company = p.Company,
-                    JobTitle = p.JobTitle
+                Id = p.Id,
+                FirstName = p.FirstName,
+                LastName = p.LastName,
+                Email = p.Email,
+                Company = p.Company,
+                JobTitle = p.JobTitle
                 })
                 .ToListAsync();
+
+            return Ok(participants);
             } catch (Exception ex)
             {
-                _logger.LogError(ex, "Erreur lors de la récupération des participants.");
-                throw;
+            _logger.LogError(ex, "Erreur lors de la récupération des participants.");
+            return StatusCode(500, "Erreur interne du serveur.");
             }
-            
         }
 
         // GET: /participant/1
@@ -173,7 +174,12 @@ namespace TP1.Controllers
                 }
 
                 _context.Participants.Remove(participant);
-                await _context.SaveChangesAsync();
+                var changes = await _context.SaveChangesAsync();
+                if (changes == 0)
+                {
+                    _logger.LogError("Aucune modification n'a été enregistrée lors de la suppression du participant.");
+                    return StatusCode(500, "Erreur interne du serveur.");
+                }
 
                 return NoContent();
             } catch (Exception ex)

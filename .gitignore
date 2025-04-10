@@ -19,9 +19,6 @@ obj/
 *.snupkg
 packages/
 
-# Entity Framework Migrations
-Migrations/
-
 # OS generated files
 .DS_Store
 Thumbs.db
